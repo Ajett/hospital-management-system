@@ -1,0 +1,110 @@
+package com.ajeet.hospital.controller;
+
+import com.ajeet.hospital.dto.LoginRequest;
+import com.ajeet.hospital.dto.LoginResponse;
+import com.ajeet.hospital.dto.RefreshTokenRequest;
+import com.ajeet.hospital.dto.RegisterRequest;
+import com.ajeet.hospital.service.AuthService;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import java.util.Map;
+
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+
+    // =========================================================
+    // REGISTER
+    // =========================================================
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String register(
+            @Valid @RequestBody RegisterRequest request) {
+
+        authService.register(request);
+
+        return "User registered successfully";
+    }
+
+
+
+    // =========================================================
+    // NORMAL LOGIN
+    // =========================================================
+
+    @PostMapping("/login")
+    public LoginResponse login(
+            @Valid @RequestBody LoginRequest request) {
+
+        return authService.login(request);
+    }
+
+
+    // =========================================================
+    // REFRESH TOKEN
+    // =========================================================
+
+    @PostMapping("/refresh")
+    public LoginResponse refreshToken(
+            @RequestBody RefreshTokenRequest request) {
+
+        return authService.refreshToken(request);
+    }
+
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
+    @PostMapping("/logout")
+    public String logout(
+          @Valid  @RequestBody RefreshTokenRequest request) {
+
+        authService.logout(
+                request.getRefreshToken()
+        );
+
+        return "Logout successful";
+    }
+
+
+    // =========================================================
+    // GOOGLE LOGIN SUCCESS
+    // =========================================================
+
+    @GetMapping("/oauth2/success")
+    public LoginResponse oauth2Success(
+            @AuthenticationPrincipal OAuth2User oauth2User) {
+
+        return authService.googleLogin(
+                oauth2User
+        );
+    }
+
+    @GetMapping("/oauth2/failure")
+    public ResponseEntity<?> oauth2Failure() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "message", "Google login failed"
+                ));
+    }
+}
