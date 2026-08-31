@@ -5,6 +5,7 @@ import com.ajeet.hospital.entity.User;
 import com.ajeet.hospital.repository.RefreshTokenRepository;
 import com.ajeet.hospital.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import com.ajeet.hospital.exception.RefreshTokenNotFoundException;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -64,7 +65,10 @@ public class RefreshTokenService {
         return refreshTokenRepository
                 .findByToken(token)
                 .orElseThrow(() ->
-                        new RuntimeException("Refresh token not found"));
+                        new RefreshTokenNotFoundException(
+                                "Refresh token not found"
+                        )
+                );
     }
 
     public void deleteByToken(String token) {
@@ -73,7 +77,7 @@ public class RefreshTokenService {
                 refreshTokenRepository
                         .findByToken(token)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new RefreshTokenNotFoundException(
                                         "Refresh token not found"
                                 ));
 
@@ -86,7 +90,7 @@ public class RefreshTokenService {
                 refreshTokenRepository
                         .findByToken(oldToken)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new RefreshTokenNotFoundException(
                                         "Refresh token not found"
                                 ));
 

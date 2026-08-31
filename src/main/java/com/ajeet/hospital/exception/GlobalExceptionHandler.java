@@ -145,4 +145,15 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, Object> handleRefreshTokenNotFound(
+            RefreshTokenNotFoundException exception) {
+
+        return Map.of(
+                "status", 401,
+                "message", exception.getMessage()
+        );
+    }
+
 }
