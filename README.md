@@ -1,6 +1,22 @@
 # 🏥 Hospital Management System
 
-A backend REST API built with **Java and Spring Boot** for managing hospital operations including patients, doctors, departments, appointments, medical records, billing, and user authentication.
+A backend REST API built with Java and Spring Boot for managing hospital operations including patients, doctors, departments, appointments, medical records, billing, and user authentication.
+
+## 🌐 Live Demo
+
+🚀 **Live API:**  
+https://hospital-management-system-dap5.onrender.com
+
+📂 **GitHub Repository:**  
+https://github.com/Ajett/hospital-management-system
+
+### Deployment
+
+- **Application:** Render
+- **Database:** Aiven MySQL
+- **Containerization:** Docker
+- **Authentication:** JWT + Google OAuth2
+- **CI/CD:** GitHub → Render Auto Deploy
 
 ## 🚀 Features
 
