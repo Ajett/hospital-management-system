@@ -1,10 +1,10 @@
 package com.ajeet.hospital.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,20 +12,20 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-
 @Entity
 public class Department {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false, unique=true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     private String location;
 
     @OneToMany(mappedBy = "department")
+    @JsonIgnore
     private List<Doctor> doctors = new ArrayList<>();
 
     public void addDoctor(Doctor doctor) {
