@@ -108,7 +108,7 @@ class AppointmentControllerTest {
                                 )
                                 .content("""
                                 {
-                                    "appointmentDate": "2026-09-01",
+                                    "appointmentDate": "2026-09-03",
                                     "appointmentTime": "10:30:00",
                                     "reason": "Regular checkup",
                                     "patientId": 1,
@@ -120,8 +120,7 @@ class AppointmentControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(
                         jsonPath("$.appointmentDate")
-                                .value("2026-09-01")
-                )
+                                .value("2026-09-01"))
                 .andExpect(
                         jsonPath("$.appointmentTime")
                                 .value("10:30:00")
@@ -216,10 +215,7 @@ class AppointmentControllerTest {
                 .andExpect(jsonPath("$.length()").value(2))
 
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(
-                        jsonPath("$[0].appointmentDate")
-                                .value("2026-09-01")
-                )
+                .andExpect(jsonPath("$[0].appointmentDate").value("2026-09-01"))
                 .andExpect(
                         jsonPath("$[0].appointmentTime")
                                 .value("10:30:00")
@@ -303,14 +299,8 @@ class AppointmentControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(
-                        jsonPath("$.appointmentDate")
-                                .value("2026-09-01")
-                )
-                .andExpect(
-                        jsonPath("$.appointmentTime")
-                                .value("10:30:00")
-                )
+                .andExpect(jsonPath("$.appointmentDate").value("2026-09-01"))
+                .andExpect(jsonPath("$.appointmentDate").value("2026-09-01"))
                 .andExpect(
                         jsonPath("$.reason")
                                 .value("Regular checkup")
@@ -387,7 +377,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "patientId": 1,
@@ -430,7 +420,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "patientId": 999,
@@ -471,7 +461,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "patientId": 1,
@@ -528,7 +518,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "reason": "Regular checkup",
                                 "patientId": 1,
                                 "doctorId": 2
@@ -554,7 +544,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "doctorId": 2
@@ -580,7 +570,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "patientId": 1
@@ -635,7 +625,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "%s",
                                 "patientId": 1,
@@ -690,7 +680,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "%s",
                                 "patientId": 1,
@@ -1297,7 +1287,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Regular checkup",
                                 "patientId": 1,
@@ -1669,7 +1659,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "patientId": 1,
                                 "doctorId": 2
@@ -1752,7 +1742,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-01",
+                                "appointmentDate": "2026-09-03",
                                 "appointmentTime": "10:30:00",
                                 "reason": "Checkup",
                                 "patientId": 1,
