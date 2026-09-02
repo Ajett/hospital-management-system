@@ -128,9 +128,17 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // ------------------------------
+                        // Authentication APIs
+                        // ------------------------------
+
+                        .requestMatchers(
+                                "/api/auth/**"
+                        ).permitAll()
+
 
                         // ------------------------------
-                        // Your authentication APIs
+                        // CORS preflight
                         // ------------------------------
 
                         .requestMatchers(
