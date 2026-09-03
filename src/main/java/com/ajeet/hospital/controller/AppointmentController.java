@@ -8,6 +8,7 @@ import com.ajeet.hospital.service.AppointmentService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ public class AppointmentController {
     // ADMIN / GENERAL CREATE
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public AppointmentResponse createAppointment(
             @Valid @RequestBody AppointmentRequest request) {
@@ -46,6 +48,7 @@ public class AppointmentController {
     // PATIENT CREATE
     // =========================================================
 
+    @PreAuthorize("hasRole('PATIENT')")
     @PostMapping("/patient")
     public AppointmentResponse createPatientAppointment(
             @Valid @RequestBody PatientAppointmentRequest request,
@@ -65,6 +68,7 @@ public class AppointmentController {
     // GET ALL
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<AppointmentResponse> getAllAppointments() {
 
@@ -75,6 +79,7 @@ public class AppointmentController {
 // GET MY APPOINTMENTS
 // =========================================================
 
+    @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/my")
     public List<AppointmentResponse> getMyAppointments(
             Authentication authentication) {
@@ -90,6 +95,7 @@ public class AppointmentController {
     // GET BY ID
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public AppointmentResponse getAppointmentById(
             @PathVariable Long id) {
@@ -104,6 +110,7 @@ public class AppointmentController {
     // UPDATE
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public AppointmentResponse updateAppointment(
             @PathVariable Long id,
@@ -120,6 +127,7 @@ public class AppointmentController {
     // DELETE
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteAppointment(
             @PathVariable Long id) {
@@ -134,6 +142,7 @@ public class AppointmentController {
     // UPDATE STATUS
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
     public AppointmentResponse updateAppointmentStatus(
             @PathVariable Long id,
