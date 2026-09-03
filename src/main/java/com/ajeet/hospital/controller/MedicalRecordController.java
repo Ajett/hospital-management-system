@@ -52,4 +52,24 @@ public class MedicalRecordController {
                 .getPatientMedicalHistory(patientId);
     }
 
+    // UPDATE
+    @PutMapping("/{id}")
+    public MedicalRecordResponse updateMedicalRecord(
+            @PathVariable Long id,
+            @Valid @RequestBody MedicalRecordRequest request) {
+
+        return medicalRecordService.updateMedicalRecord(id, request);
+    }
+
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public String deleteMedicalRecord(
+            @PathVariable Long id) {
+
+        medicalRecordService.deleteMedicalRecord(id);
+
+        return "Medical record deleted successfully";
+    }
+
 }

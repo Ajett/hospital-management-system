@@ -150,4 +150,85 @@ public class MedicalRecordService {
                 .toList();
     }
 
+    // UPDATE
+    public MedicalRecordResponse updateMedicalRecord(
+            Long id,
+            MedicalRecordRequest request) {
+
+        MedicalRecord record =
+                medicalRecordRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new MedicalRecordNotFoundException(
+                                        "Medical record with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
+
+        Patient patient =
+                patientRepository
+                        .findById(request.getPatientId())
+                        .orElseThrow(() ->
+                                new PatientNotFoundException(
+                                        "Patient with id "
+                                                + request.getPatientId()
+                                                + " not found"
+                                )
+                        );
+
+        Doctor doctor =
+                doctorRepository
+                        .findById(request.getDoctorId())
+                        .orElseThrow(() ->
+                                new DoctorNotFoundException(
+                                        "Doctor with id "
+                                                + request.getDoctorId()
+                                                + " not found"
+                                )
+                        );
+
+        record.setRecordDate(
+                request.getRecordDate()
+        );
+
+        record.setDiagnosis(
+                request.getDiagnosis()
+        );
+
+        record.setSymptoms(
+                request.getSymptoms()
+        );
+
+        record.setPrescription(
+                request.getPrescription()
+        );
+
+        record.setPatient(patient);
+        record.setDoctor(doctor);
+
+        MedicalRecord updatedRecord =
+                medicalRecordRepository.save(record);
+
+        return convertToResponse(updatedRecord);
+    }
+
+
+    // DELETE
+    public void deleteMedicalRecord(Long id) {
+
+        MedicalRecord record =
+                medicalRecordRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new MedicalRecordNotFoundException(
+                                        "Medical record with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
+
+        medicalRecordRepository.delete(record);
+    }
+
 }
