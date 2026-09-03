@@ -186,4 +186,74 @@ public class BillService {
         return response;
     }
 
+    // UPDATE BILL
+    public BillResponse updateBill(
+            Long id,
+            BillRequest request) {
+
+        Bill bill = billRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new BillNotFoundException(
+                                "Bill with id "
+                                        + id
+                                        + " not found"
+                        )
+                );
+
+        Appointment appointment =
+                appointmentRepository
+                        .findById(request.getAppointmentId())
+                        .orElseThrow(() ->
+                                new AppointmentNotFoundException(
+                                        "Appointment with id "
+                                                + request.getAppointmentId()
+                                                + " not found"
+                                )
+                        );
+
+        // Don't allow another bill for the same appointment
+        if (!bill.getAppointment()
+                .getId()
+                .equals(request.getAppointmentId())
+                && billRepository.existsByAppointmentId(
+                request.getAppointmentId())) {
+
+            throw new BillAlreadyExistsException(
+                    "Bill already exists for this appointment"
+            );
+        }
+
+        bill.setAmount(
+                request.getAmount()
+        );
+
+        bill.setAppointment(
+                appointment
+        );
+
+        Bill updatedBill =
+                billRepository.save(bill);
+
+        return convertToResponse(updatedBill);
+    }
+
+
+    // DELETE BILL
+    @Transactional
+    public void deleteBill(Long id) {
+
+        Bill bill = billRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new BillNotFoundException(
+                                "Bill with id "
+                                        + id
+                                        + " not found"
+                        )
+                );
+
+        billRepository.delete(bill);
+    }
+
 }

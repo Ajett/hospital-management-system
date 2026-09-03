@@ -14,11 +14,22 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+                new CorsConfiguration();
+
+        // ============================================
+        // ALLOWED FRONTEND ORIGINS
+        // ============================================
 
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "http://localhost:5174"
         ));
+
+
+        // ============================================
+        // ALLOWED HTTP METHODS
+        // ============================================
 
         configuration.setAllowedMethods(List.of(
                 "GET",
@@ -29,12 +40,27 @@ public class CorsConfig {
                 "OPTIONS"
         ));
 
+
+        // ============================================
+        // ALLOWED HEADERS
+        // ============================================
+
         configuration.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type"
         ));
 
+
+        // ============================================
+        // CREDENTIALS
+        // ============================================
+
         configuration.setAllowCredentials(true);
+
+
+        // ============================================
+        // REGISTER CORS CONFIGURATION
+        // ============================================
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();

@@ -53,5 +53,25 @@ public class BillController {
         );
     }
 
+    // UPDATE BILL
+    @PutMapping("/{id}")
+    public BillResponse updateBill(
+            @PathVariable Long id,
+            @Valid @RequestBody BillRequest request) {
+
+        return billService.updateBill(id, request);
+    }
+
+
+    // DELETE BILL
+    @DeleteMapping("/{id}")
+    public String deleteBill(
+            @PathVariable Long id) {
+
+        billService.deleteBill(id);
+
+        return "Bill deleted successfully";
+    }
+
 
 }
