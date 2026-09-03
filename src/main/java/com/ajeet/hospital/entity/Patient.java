@@ -1,9 +1,7 @@
 package com.ajeet.hospital.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,4 +29,14 @@ public class Patient {
     private String email;
 
     private String address;
+
+
+    // ============================================
+    // LINK PATIENT WITH USER
+    // ============================================
+
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    @JsonIgnore
+    private User user;
 }

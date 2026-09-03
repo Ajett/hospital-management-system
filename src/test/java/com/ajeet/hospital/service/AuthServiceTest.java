@@ -4,9 +4,11 @@ import com.ajeet.hospital.dto.LoginRequest;
 import com.ajeet.hospital.dto.LoginResponse;
 import com.ajeet.hospital.dto.RefreshTokenRequest;
 import com.ajeet.hospital.dto.RegisterRequest;
+import com.ajeet.hospital.entity.Patient;
 import com.ajeet.hospital.entity.RefreshToken;
 import com.ajeet.hospital.entity.Role;
 import com.ajeet.hospital.entity.User;
+import com.ajeet.hospital.repository.PatientRepository;
 import com.ajeet.hospital.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,9 @@ public class AuthServiceTest {
     @Mock
     private RefreshTokenService refreshTokenService;
 
+    @Mock
+    private PatientRepository patientRepository;
+
     @InjectMocks
     private AuthService authService;
 
@@ -60,12 +65,18 @@ public class AuthServiceTest {
         when(passwordEncoder.encode("123456"))
                 .thenReturn("encoded-password");
 
+        when(patientRepository.save(any(Patient.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // When
         authService.register(request);
 
         // Then
         verify(userRepository)
                 .save(any(User.class));
+
+        verify(patientRepository)
+                .save(any(Patient.class));
     }
 
     @Test
@@ -382,6 +393,9 @@ public class AuthServiceTest {
         when(userRepository.save(any(User.class)))
                 .thenReturn(savedUser);
 
+        when(patientRepository.save(any(Patient.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // JWT
         when(jwtService.generateToken(
                 "ajeet@gmail.com",
@@ -425,6 +439,9 @@ public class AuthServiceTest {
 
         verify(userRepository)
                 .save(any(User.class));
+
+        verify(patientRepository)
+                .save(any(Patient.class));
     }
 
     @Test

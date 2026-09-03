@@ -4,9 +4,11 @@ import com.ajeet.hospital.dto.LoginRequest;
 import com.ajeet.hospital.dto.LoginResponse;
 import com.ajeet.hospital.dto.RefreshTokenRequest;
 import com.ajeet.hospital.dto.RegisterRequest;
+import com.ajeet.hospital.entity.Patient;
 import com.ajeet.hospital.entity.RefreshToken;
 import com.ajeet.hospital.entity.Role;
 import com.ajeet.hospital.entity.User;
+import com.ajeet.hospital.repository.PatientRepository;
 import com.ajeet.hospital.repository.UserRepository;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,19 +23,23 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
+
     public AuthService(
             UserRepository userRepository,
+            PatientRepository patientRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             RefreshTokenService refreshTokenService) {
 
         this.userRepository = userRepository;
+        this.patientRepository = patientRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -56,9 +62,16 @@ public class AuthService {
             );
         }
 
+
+        // ============================================
+        // CREATE USER
+        // ============================================
+
         User user = new User();
 
-        user.setUsername(request.getUsername());
+        user.setUsername(
+                request.getUsername()
+        );
 
         user.setPassword(
                 passwordEncoder.encode(
@@ -66,9 +79,26 @@ public class AuthService {
                 )
         );
 
-        user.setRole(Role.PATIENT);
+        user.setRole(
+                Role.PATIENT
+        );
 
-        userRepository.save(user);
+        user = userRepository.save(user);
+
+
+        // ============================================
+        // CREATE PATIENT PROFILE
+        // ============================================
+
+        Patient patient = new Patient();
+
+        patient.setName(
+                request.getUsername()
+        );
+
+        patient.setUser(user);
+
+        patientRepository.save(patient);
     }
 
 
@@ -86,9 +116,13 @@ public class AuthService {
         );
 
         User user = userRepository
-                .findByUsername(request.getUsername())
+                .findByUsername(
+                        request.getUsername()
+                )
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new RuntimeException(
+                                "User not found"
+                        )
                 );
 
         return generateLoginResponse(user);
@@ -102,8 +136,8 @@ public class AuthService {
     public LoginResponse googleLogin(
             OAuth2User oauth2User) {
 
-        // Get email from Google
-        String email = oauth2User.getAttribute("email");
+        String email =
+                oauth2User.getAttribute("email");
 
         if (email == null || email.isBlank()) {
 
@@ -112,30 +146,23 @@ public class AuthService {
             );
         }
 
-        // Check whether user already exists
-        User user = userRepository
-                .findByUsername(email)
-                .orElse(null);
+
+        User user =
+                userRepository
+                        .findByUsername(email)
+                        .orElse(null);
 
 
-        // =====================================================
-        // USER DOES NOT EXIST
-        // =====================================================
+        // ============================================
+        // NEW GOOGLE USER
+        // ============================================
 
         if (user == null) {
 
             user = new User();
 
-            // We are using Google email as username
             user.setUsername(email);
 
-            /*
-             * Google users don't log in using our password.
-             *
-             * But our database password column is NOT NULL,
-             * therefore we need to store a random encoded
-             * password.
-             */
             String randomPassword =
                     UUID.randomUUID().toString();
 
@@ -145,16 +172,32 @@ public class AuthService {
                     )
             );
 
-            // Google registered users become PATIENT
-            user.setRole(Role.PATIENT);
+            user.setRole(
+                    Role.PATIENT
+            );
 
-            user = userRepository.save(user);
+            user =
+                    userRepository.save(user);
+
+
+            // ========================================
+            // CREATE PATIENT PROFILE
+            // ========================================
+
+            Patient patient =
+                    new Patient();
+
+            patient.setName(email);
+
+            patient.setUser(user);
+
+            patientRepository.save(patient);
         }
 
 
-        // =====================================================
-        // USER ALREADY EXISTS
-        // =====================================================
+        // ============================================
+        // LOGIN
+        // ============================================
 
         return generateLoginResponse(user);
     }
@@ -167,14 +210,12 @@ public class AuthService {
     private LoginResponse generateLoginResponse(
             User user) {
 
-        // Generate access JWT
         String accessToken =
                 jwtService.generateToken(
                         user.getUsername(),
                         user.getRole().name()
                 );
 
-        // Generate refresh token
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(
                         user.getUsername()
@@ -201,7 +242,8 @@ public class AuthService {
                         request.getRefreshToken()
                 );
 
-        User user = newRefreshToken.getUser();
+        User user =
+                newRefreshToken.getUser();
 
         return generateLoginResponse(user);
     }

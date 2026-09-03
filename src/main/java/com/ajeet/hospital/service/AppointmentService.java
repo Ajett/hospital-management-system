@@ -16,6 +16,7 @@ import com.ajeet.hospital.repository.DoctorRepository;
 import com.ajeet.hospital.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ajeet.hospital.dto.PatientAppointmentRequest;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final BillRepository billRepository;
+
 
     public AppointmentService(
             AppointmentRepository appointmentRepository,
@@ -107,9 +109,103 @@ public class AppointmentService {
         return convertToResponse(savedAppointment);
     }
 
+    // =========================================================
+// CREATE APPOINTMENT FOR LOGGED-IN PATIENT
+// =========================================================
+
+    public AppointmentResponse createPatientAppointment(
+            String username,
+            PatientAppointmentRequest request) {
+
+        // Find patient using logged-in username
+        Patient patient =
+                patientRepository
+                        .findByUserUsername(username)
+                        .orElseThrow(() ->
+                                new PatientNotFoundException(
+                                        "Patient profile not found for user "
+                                                + username
+                                )
+                        );
+
+
+        // Check doctor availability
+        boolean alreadyBooked =
+                appointmentRepository
+                        .existsByDoctorIdAndAppointmentDateAndAppointmentTime(
+                                request.getDoctorId(),
+                                request.getAppointmentDate(),
+                                request.getAppointmentTime()
+                        );
+
+        if (alreadyBooked) {
+
+            throw new AppointmentConflictException(
+                    "Doctor is already booked for this date and time"
+            );
+        }
+
+
+        // Find doctor
+        Doctor doctor =
+                doctorRepository
+                        .findById(request.getDoctorId())
+                        .orElseThrow(() ->
+                                new DoctorNotFoundException(
+                                        "Doctor with id "
+                                                + request.getDoctorId()
+                                                + " not found"
+                                )
+                        );
+
+
+        // Create appointment
+        Appointment appointment =
+                new Appointment();
+
+        appointment.setAppointmentDate(
+                request.getAppointmentDate()
+        );
+
+        appointment.setAppointmentTime(
+                request.getAppointmentTime()
+        );
+
+        appointment.setReason(
+                request.getReason()
+        );
+
+        appointment.setStatus(
+                AppointmentStatus.SCHEDULED
+        );
+
+        appointment.setPatient(patient);
+
+        appointment.setDoctor(doctor);
+
+
+        Appointment savedAppointment =
+                appointmentRepository.save(appointment);
+
+
+        return convertToResponse(
+                savedAppointment
+        );
+    }
+
     public List<AppointmentResponse> getAllAppointments() {
 
         return appointmentRepository.findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public List<AppointmentResponse> getAppointmentsForPatient(
+            String username) {
+
+        return appointmentRepository
+                .findByPatientUserUsername(username)
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -157,6 +253,9 @@ public class AppointmentService {
 
         return convertToResponse(updatedAppointment);
     }
+
+
+
 
     @Transactional
     public void deleteAppointment(Long id) {
