@@ -25,4 +25,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    // Generic profile fields
+    @Column
+    private String name;
+
+    @Column
+    private String email;
+
+    @Column
+    private String phone;
 }
