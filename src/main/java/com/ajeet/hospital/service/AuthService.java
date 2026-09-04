@@ -5,9 +5,14 @@ import com.ajeet.hospital.entity.Patient;
 import com.ajeet.hospital.entity.RefreshToken;
 import com.ajeet.hospital.entity.Role;
 import com.ajeet.hospital.entity.User;
+import com.ajeet.hospital.repository.PasswordResetTokenRepository;
 import com.ajeet.hospital.repository.PatientRepository;
 import com.ajeet.hospital.repository.UserRepository;
+import com.ajeet.hospital.entity.PasswordResetToken;
 
+import java.time.LocalDateTime;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +32,11 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
+
+
+    private final String frontendUrl;
 
     public AuthService(
             UserRepository userRepository,
@@ -34,7 +44,10 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService,
+            @Value("${frontend.url}") String frontendUrl) {
 
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
@@ -42,6 +55,10 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.passwordResetTokenRepository =
+                passwordResetTokenRepository;
+        this.emailService = emailService;
+        this.frontendUrl = frontendUrl;
     }
 
 
@@ -322,5 +339,111 @@ public class AuthService {
         );
 
         userRepository.save(user);
+    }
+
+    // =========================================================
+// FORGOT PASSWORD
+// =========================================================
+
+    public void forgotPassword(
+            ForgotPasswordRequest request) {
+
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase();
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return;
+        }
+
+        passwordResetTokenRepository
+                .deleteByUserId(user.getId());
+
+        String token =
+                UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken =
+                new PasswordResetToken();
+
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(
+                LocalDateTime.now().plusMinutes(15)
+        );
+        resetToken.setUsed(false);
+
+        passwordResetTokenRepository.save(
+                resetToken
+        );
+
+        String resetLink =
+                frontendUrl +
+                        "/reset-password?token=" +
+                        token;
+
+        emailService.sendPasswordResetEmail(
+                email,
+                resetLink
+        );
+    }
+
+    // =========================================================
+// RESET PASSWORD
+// =========================================================
+
+    public void resetPassword(
+            ResetPasswordRequest request) {
+
+        if (!request.getNewPassword()
+                .equals(request.getConfirmPassword())) {
+
+            throw new IllegalArgumentException(
+                    "New password and confirm password do not match"
+            );
+        }
+
+        PasswordResetToken resetToken =
+                passwordResetTokenRepository
+                        .findByToken(request.getToken())
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Invalid or expired reset link"
+                                )
+                        );
+
+        if (resetToken.isUsed()) {
+
+            throw new IllegalArgumentException(
+                    "This reset link has already been used"
+            );
+        }
+
+        if (resetToken.getExpiryDate()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new IllegalArgumentException(
+                    "This reset link has expired"
+            );
+        }
+
+        User user = resetToken.getUser();
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getNewPassword()
+                )
+        );
+
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+
+        passwordResetTokenRepository.save(
+                resetToken
+        );
     }
 }

@@ -123,4 +123,33 @@ public class AuthController {
                 )
         );
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+
+        authService.forgotPassword(request);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "If an account exists with this email, " +
+                                "a password reset link has been sent."
+                )
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+
+        authService.resetPassword(request);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "Password reset successfully"
+                )
+        );
+    }
 }
