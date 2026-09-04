@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static org.mockito.Mockito.*;
+import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.test.util.ReflectionTestUtils;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -183,48 +186,44 @@ public class AuthControllerTest {
     }
 
     @Test
-    void oauth2Success_shouldReturnLoginResponse() {
+    void oauth2Success_shouldRedirectToFrontend() {
 
         OAuth2User oauth2User = mock(OAuth2User.class);
 
-        LoginResponse loginResponse = new LoginResponse(
-                "google-access-token",
-                "google-refresh-token",
-                "ajeet@gmail.com",
-                "PATIENT"
-        );
+        LoginResponse loginResponse =
+                new LoginResponse(
+                        "google-access-token",
+                        "google-refresh-token",
+                        "ajeet@gmail.com",
+                        "PATIENT"
+                );
 
         when(authService.googleLogin(oauth2User))
                 .thenReturn(loginResponse);
 
-        LoginResponse result =
-                new AuthController(authService)
-                        .oauth2Success(oauth2User);
+        AuthController controller =
+                new AuthController(authService);
 
-        assertEquals(
-                "google-access-token",
-                result.getAccessToken()
+        ReflectionTestUtils.setField(
+                controller,
+                "frontendUrl",
+                "http://localhost:5173"
         );
 
-        assertEquals(
-                "google-refresh-token",
-                result.getRefreshToken()
-        );
+        RedirectView result =
+                controller.oauth2Success(oauth2User);
+
+        assertNotNull(result);
 
         assertEquals(
-                "ajeet@gmail.com",
-                result.getUsername()
+                "http://localhost:5173/oauth2/callback"
+                        + "#accessToken=google-access-token"
+                        + "&refreshToken=google-refresh-token"
+                        + "&username=ajeet@gmail.com"
+                        + "&role=PATIENT",
+                result.getUrl()
         );
-
-        assertEquals(
-                "PATIENT",
-                result.getRole()
-        );
-
-        verify(authService)
-                .googleLogin(oauth2User);
     }
-
     @Test
     void oauth2Failure_shouldReturn401() throws Exception {
 

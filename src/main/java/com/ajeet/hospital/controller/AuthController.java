@@ -8,6 +8,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.web.servlet.view.RedirectView;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -83,17 +87,33 @@ public class AuthController {
     }
 
 
-    // =========================================================
-    // GOOGLE LOGIN SUCCESS
-    // =========================================================
+    // ============================================
+// GOOGLE OAUTH2
+// ============================================
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @GetMapping("/oauth2/success")
-    public LoginResponse oauth2Success(
+    public RedirectView oauth2Success(
             @AuthenticationPrincipal OAuth2User oauth2User) {
 
-        return authService.googleLogin(
-                oauth2User
-        );
+        LoginResponse response =
+                authService.googleLogin(oauth2User);
+
+        String redirectUrl =
+                frontendUrl
+                        + "/oauth2/callback"
+                        + "#accessToken="
+                        + response.getAccessToken()
+                        + "&refreshToken="
+                        + response.getRefreshToken()
+                        + "&username="
+                        + response.getUsername()
+                        + "&role="
+                        + response.getRole();
+
+        return new RedirectView(redirectUrl);
     }
 
     @GetMapping("/oauth2/failure")
@@ -102,7 +122,8 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
-                        "message", "Google login failed"
+                        "message",
+                        "Google login failed"
                 ));
     }
 
