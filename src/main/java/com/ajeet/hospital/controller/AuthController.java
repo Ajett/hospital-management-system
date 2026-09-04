@@ -1,9 +1,6 @@
 package com.ajeet.hospital.controller;
 
-import com.ajeet.hospital.dto.LoginRequest;
-import com.ajeet.hospital.dto.LoginResponse;
-import com.ajeet.hospital.dto.RefreshTokenRequest;
-import com.ajeet.hospital.dto.RegisterRequest;
+import com.ajeet.hospital.dto.*;
 import com.ajeet.hospital.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -11,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -106,5 +104,23 @@ public class AuthController {
                 .body(Map.of(
                         "message", "Google login failed"
                 ));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
+
+        authService.changePassword(
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "Password changed successfully"
+                )
+        );
     }
 }

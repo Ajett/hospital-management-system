@@ -1,6 +1,7 @@
 package com.ajeet.hospital.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,6 +12,27 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+
+    // =========================================================
+    // BAD CREDENTIALS
+    // =========================================================
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, Object> handleBadCredentials(
+            BadCredentialsException exception) {
+
+        return Map.of(
+                "status", 401,
+                "message", "Invalid username or password"
+        );
+    }
+
+
+    // =========================================================
+    // DEPARTMENT NOT FOUND
+    // =========================================================
 
     @ExceptionHandler(DepartmentNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -23,12 +45,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // VALIDATION
+    // =========================================================
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidationErrors(
             MethodArgumentNotValidException exception) {
 
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> errors =
+                new HashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()
@@ -46,6 +74,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // DOCTOR NOT FOUND
+    // =========================================================
+
     @ExceptionHandler(DoctorNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleDoctorNotFound(
@@ -56,6 +89,11 @@ public class GlobalExceptionHandler {
                 "message", exception.getMessage()
         );
     }
+
+
+    // =========================================================
+    // PATIENT NOT FOUND
+    // =========================================================
 
     @ExceptionHandler(PatientNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -68,6 +106,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // APPOINTMENT CONFLICT
+    // =========================================================
+
     @ExceptionHandler(AppointmentConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, Object> handleAppointmentConflict(
@@ -78,6 +121,11 @@ public class GlobalExceptionHandler {
                 "message", exception.getMessage()
         );
     }
+
+
+    // =========================================================
+    // APPOINTMENT NOT FOUND
+    // =========================================================
 
     @ExceptionHandler(AppointmentNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -90,6 +138,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // MEDICAL RECORD NOT FOUND
+    // =========================================================
+
     @ExceptionHandler(MedicalRecordNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleMedicalRecordNotFound(
@@ -100,6 +153,11 @@ public class GlobalExceptionHandler {
                 "message", exception.getMessage()
         );
     }
+
+
+    // =========================================================
+    // BILL NOT FOUND
+    // =========================================================
 
     @ExceptionHandler(BillNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -112,6 +170,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // BILL ALREADY EXISTS
+    // =========================================================
+
     @ExceptionHandler(BillAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, Object> handleBillAlreadyExists(
@@ -122,6 +185,11 @@ public class GlobalExceptionHandler {
                 "message", exception.getMessage()
         );
     }
+
+
+    // =========================================================
+    // ILLEGAL ARGUMENT
+    // =========================================================
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -134,6 +202,11 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // =========================================================
+    // ILLEGAL STATE
+    // =========================================================
+
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleIllegalState(
@@ -144,6 +217,11 @@ public class GlobalExceptionHandler {
                 "message", exception.getMessage()
         );
     }
+
+
+    // =========================================================
+    // REFRESH TOKEN
+    // =========================================================
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
