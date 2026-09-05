@@ -453,8 +453,11 @@ public class AuthServiceTest {
         when(oauth2User.getAttribute("email"))
                 .thenReturn("ajeet@gmail.com");
 
+        when(oauth2User.getAttribute("name"))
+                .thenReturn("Ajeet Kumar");
 
-        // User already exists
+
+        // Existing user
         User existingUser = new User();
 
         existingUser.setUsername("ajeet@gmail.com");
@@ -463,6 +466,11 @@ public class AuthServiceTest {
 
         when(userRepository.findByUsername("ajeet@gmail.com"))
                 .thenReturn(Optional.of(existingUser));
+
+
+        // googleLogin() updates existing user's profile
+        when(userRepository.save(existingUser))
+                .thenReturn(existingUser);
 
 
         // JWT
@@ -508,10 +516,22 @@ public class AuthServiceTest {
         );
 
 
-        // IMPORTANT:
-        // Existing user should NOT be saved again
-        verify(userRepository, never())
-                .save(any(User.class));
+        // Google profile should be updated
+        assertEquals(
+                "Ajeet Kumar",
+                existingUser.getName()
+        );
+
+        assertEquals(
+                "ajeet@gmail.com",
+                existingUser.getEmail()
+        );
+
+
+        // Existing user is updated
+        verify(userRepository, times(1))
+                .save(existingUser);
+
 
         // Existing user should not get a new password
         verify(passwordEncoder, never())

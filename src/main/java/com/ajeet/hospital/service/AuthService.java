@@ -20,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -377,6 +378,7 @@ public class AuthService {
     // FORGOT PASSWORD
     // =========================================================
 
+    @Transactional
     public void forgotPassword(
             ForgotPasswordRequest request) {
 
