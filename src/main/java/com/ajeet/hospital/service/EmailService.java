@@ -1,23 +1,30 @@
 package com.ajeet.hospital.service;
 
-import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.CreateEmailOptions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    private final Resend resend;
+    private final RestClient restClient;
 
-    @Value("${resend.from-email:onboarding@resend.dev}")
+    @Value("${brevo.api-key}")
+    private String apiKey;
+
+    @Value("${brevo.from-email}")
     private String fromEmail;
 
-    public EmailService(
-            @Value("${resend.api-key}") String apiKey) {
+    @Value("${brevo.from-name:Hospital Management System}")
+    private String fromName;
 
-        this.resend = new Resend(apiKey);
+    public EmailService() {
+        this.restClient = RestClient.builder()
+                .baseUrl("https://api.brevo.com/v3")
+                .build();
     }
 
     public void sendPasswordResetEmail(
@@ -26,8 +33,11 @@ public class EmailService {
 
         String htmlContent =
                 """
-                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h2>Hospital Management System</h2>
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+
+                    <h2 style="color: #0d6efd;">
+                        Hospital Management System
+                    </h2>
 
                     <p>Hello,</p>
 
@@ -48,6 +58,7 @@ public class EmailService {
                                color: white;
                                text-decoration: none;
                                border-radius: 6px;
+                               font-weight: bold;
                            ">
                             Reset Password
                         </a>
@@ -57,10 +68,12 @@ public class EmailService {
                         Or copy and paste this link into your browser:
                     </p>
 
-                    <p>%s</p>
+                    <p>
+                        <a href="%s">%s</a>
+                    </p>
 
                     <p>
-                        This link will expire in 15 minutes.
+                        <strong>This link will expire in 15 minutes.</strong>
                     </p>
 
                     <p>
@@ -72,24 +85,41 @@ public class EmailService {
                         Regards,<br>
                         Hospital Management System
                     </p>
-                </div>
-                """.formatted(resetLink, resetLink);
 
-        CreateEmailOptions emailOptions =
-                CreateEmailOptions.builder()
-                        .from(fromEmail)
-                        .to(email)
-                        .subject(
-                                "Hospital Management System - Password Reset"
+                </div>
+                """.formatted(
+                        resetLink,
+                        resetLink,
+                        resetLink
+                );
+
+        Map<String, Object> requestBody = Map.of(
+                "sender", Map.of(
+                        "name", fromName,
+                        "email", fromEmail
+                ),
+                "to", new Object[]{
+                        Map.of(
+                                "email", email
                         )
-                        .html(htmlContent)
-                        .build();
+                },
+                "subject",
+                "Hospital Management System - Password Reset",
+                "htmlContent",
+                htmlContent
+        );
 
         try {
 
-            resend.emails().send(emailOptions);
+            restClient.post()
+                    .uri("/smtp/email")
+                    .header("api-key", apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(requestBody)
+                    .retrieve()
+                    .toBodilessEntity();
 
-        } catch (ResendException e) {
+        } catch (Exception e) {
 
             throw new RuntimeException(
                     "Failed to send password reset email",
