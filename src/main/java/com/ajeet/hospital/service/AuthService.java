@@ -11,6 +11,7 @@ import com.ajeet.hospital.repository.UserRepository;
 import com.ajeet.hospital.entity.PasswordResetToken;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,8 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -34,7 +33,6 @@ public class AuthService {
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
-
 
     private final String frontendUrl;
 
@@ -55,12 +53,10 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
-        this.passwordResetTokenRepository =
-                passwordResetTokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.frontendUrl = frontendUrl;
     }
-
 
     // =========================================================
     // NORMAL REGISTER
@@ -76,7 +72,6 @@ public class AuthService {
                     "Username already exists"
             );
         }
-
 
         // ============================================
         // CREATE USER
@@ -100,7 +95,6 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-
         // ============================================
         // CREATE PATIENT PROFILE
         // ============================================
@@ -115,7 +109,6 @@ public class AuthService {
 
         patientRepository.save(patient);
     }
-
 
     // =========================================================
     // NORMAL LOGIN
@@ -152,30 +145,36 @@ public class AuthService {
         return generateLoginResponse(user);
     }
 
-
     // =========================================================
     // GOOGLE LOGIN
     // =========================================================
 
-    public LoginResponse googleLogin(
-            OAuth2User oauth2User) {
+    public LoginResponse googleLogin(OAuth2User oauth2User) {
 
-        String email =
-                oauth2User.getAttribute("email");
+        // Get email from Google
+        String email = oauth2User.getAttribute("email");
 
         if (email == null || email.isBlank()) {
-
             throw new RuntimeException(
                     "Email not provided by Google"
             );
         }
 
+        // Get full name from Google
+        String name = oauth2User.getAttribute("name");
 
-        User user =
-                userRepository
-                        .findByUsername(email)
-                        .orElse(null);
+        // Fallback if Google doesn't provide name
+        if (name == null || name.isBlank()) {
+            name = email;
+        }
 
+        // ============================================
+        // FIND USER
+        // ============================================
+
+        User user = userRepository
+                .findByUsername(email)
+                .orElse(null);
 
         // ============================================
         // NEW GOOGLE USER
@@ -185,8 +184,10 @@ public class AuthService {
 
             user = new User();
 
+            // Username = Google email
             user.setUsername(email);
 
+            // Google users don't need a real password
             String randomPassword =
                     UUID.randomUUID().toString();
 
@@ -196,36 +197,69 @@ public class AuthService {
                     )
             );
 
-            user.setRole(
-                    Role.PATIENT
-            );
+            user.setRole(Role.PATIENT);
 
-            user =
-                    userRepository.save(user);
+            // Save Google profile information
+            user.setName(name);
+            user.setEmail(email);
 
+            user = userRepository.save(user);
 
             // ========================================
             // CREATE PATIENT PROFILE
             // ========================================
 
-            Patient patient =
-                    new Patient();
+            Patient patient = new Patient();
 
-            patient.setName(email);
-
+            patient.setName(name);
             patient.setUser(user);
 
             patientRepository.save(patient);
+
+        } else {
+
+            // ============================================
+            // EXISTING GOOGLE USER
+            // ============================================
+
+            // Update Google profile information
+            user.setName(name);
+            user.setEmail(email);
+
+            user = userRepository.save(user);
+
+            // ============================================
+            // UPDATE EXISTING PATIENT PROFILE
+            // ============================================
+
+            Patient patient = patientRepository
+                    .findByUserUsername(email)
+                    .orElse(null);
+
+            if (patient != null) {
+
+                patient.setName(name);
+
+                patientRepository.save(patient);
+
+            } else {
+
+                // Safety: create patient if it doesn't exist
+                Patient newPatient = new Patient();
+
+                newPatient.setName(name);
+                newPatient.setUser(user);
+
+                patientRepository.save(newPatient);
+            }
         }
 
-
         // ============================================
-        // LOGIN
+        // GENERATE JWT + REFRESH TOKEN
         // ============================================
 
         return generateLoginResponse(user);
     }
-
 
     // =========================================================
     // GENERATE JWT + REFRESH TOKEN
@@ -253,7 +287,6 @@ public class AuthService {
         );
     }
 
-
     // =========================================================
     // REFRESH TOKEN
     // =========================================================
@@ -272,7 +305,6 @@ public class AuthService {
         return generateLoginResponse(user);
     }
 
-
     // =========================================================
     // LOGOUT
     // =========================================================
@@ -283,6 +315,10 @@ public class AuthService {
                 refreshToken
         );
     }
+
+    // =========================================================
+    // CHANGE PASSWORD
+    // =========================================================
 
     public void changePassword(
             String username,
@@ -296,7 +332,6 @@ public class AuthService {
                         )
                 );
 
-
         // Current password verify
         if (!passwordEncoder.matches(
                 request.getCurrentPassword(),
@@ -308,7 +343,6 @@ public class AuthService {
             );
         }
 
-
         // New password confirmation
         if (!request.getNewPassword()
                 .equals(request.getConfirmPassword())) {
@@ -317,7 +351,6 @@ public class AuthService {
                     "New password and confirm password do not match"
             );
         }
-
 
         // Prevent same password
         if (passwordEncoder.matches(
@@ -330,7 +363,6 @@ public class AuthService {
             );
         }
 
-
         // Save encoded password
         user.setPassword(
                 passwordEncoder.encode(
@@ -342,8 +374,8 @@ public class AuthService {
     }
 
     // =========================================================
-// FORGOT PASSWORD
-// =========================================================
+    // FORGOT PASSWORD
+    // =========================================================
 
     public void forgotPassword(
             ForgotPasswordRequest request) {
@@ -371,9 +403,11 @@ public class AuthService {
 
         resetToken.setToken(token);
         resetToken.setUser(user);
+
         resetToken.setExpiryDate(
                 LocalDateTime.now().plusMinutes(15)
         );
+
         resetToken.setUsed(false);
 
         passwordResetTokenRepository.save(
@@ -392,8 +426,8 @@ public class AuthService {
     }
 
     // =========================================================
-// RESET PASSWORD
-// =========================================================
+    // RESET PASSWORD
+    // =========================================================
 
     public void resetPassword(
             ResetPasswordRequest request) {
