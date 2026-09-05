@@ -390,36 +390,38 @@ public class AuthService {
                 .findByEmail(email)
                 .orElse(null);
 
+        // Don't reveal whether the email exists
         if (user == null) {
             return;
         }
 
+        // Delete any previous reset token
         passwordResetTokenRepository
                 .deleteByUserId(user.getId());
 
-        String token =
-                UUID.randomUUID().toString();
+        // IMPORTANT:
+        // Force DELETE to execute before INSERT
+        passwordResetTokenRepository.flush();
+
+        // Generate new token
+        String token = UUID.randomUUID().toString();
 
         PasswordResetToken resetToken =
                 new PasswordResetToken();
 
         resetToken.setToken(token);
         resetToken.setUser(user);
-
         resetToken.setExpiryDate(
                 LocalDateTime.now().plusMinutes(15)
         );
-
         resetToken.setUsed(false);
 
-        passwordResetTokenRepository.save(
-                resetToken
-        );
+        passwordResetTokenRepository.save(resetToken);
 
         String resetLink =
-                frontendUrl +
-                        "/reset-password?token=" +
-                        token;
+                frontendUrl
+                        + "/reset-password?token="
+                        + token;
 
         emailService.sendPasswordResetEmail(
                 email,
