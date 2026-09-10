@@ -72,11 +72,19 @@ public class HospitalController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public String deleteHospital(
-            @PathVariable Long id) {
+    public String deleteHospital(@PathVariable Long id) {
 
         hospitalService.deleteHospital(id);
 
         return "Hospital deleted successfully";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/restore")
+    public String restoreHospital(@PathVariable Long id) {
+
+        hospitalService.restoreHospital(id);
+
+        return "Hospital restored successfully";
     }
 }

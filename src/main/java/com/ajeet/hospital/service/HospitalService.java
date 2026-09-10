@@ -20,7 +20,7 @@ public class HospitalService {
 
     public List<PublicHospitalResponse> getPublicHospitals() {
 
-        return hospitalRepository.findAll()
+        return hospitalRepository.findByActiveTrue()
                 .stream()
                 .map(this::toPublicResponse)
                 .toList();
@@ -28,9 +28,13 @@ public class HospitalService {
 
     public PublicHospitalResponse getPublicHospital(Long id) {
 
-        Hospital hospital = hospitalRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Hospital not found"));
+        Hospital hospital =
+                hospitalRepository.findByIdAndActiveTrue(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Hospital not found"
+                                )
+                        );
 
         return toPublicResponse(hospital);
     }
@@ -52,17 +56,23 @@ public class HospitalService {
 
     public List<Hospital> getAllHospitals() {
 
-        return hospitalRepository.findAll();
+        return hospitalRepository.findByActiveTrue();
     }
 
     public Hospital getHospitalById(Long id) {
 
         return hospitalRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Hospital not found"));
+                        new RuntimeException(
+                                "Hospital not found"
+                        )
+                );
     }
 
     public Hospital createHospital(Hospital hospital) {
+
+        // New hospitals are active by default.
+        hospital.setActive(true);
 
         return hospitalRepository.save(hospital);
     }
@@ -75,15 +85,32 @@ public class HospitalService {
                 hospitalRepository.findById(id)
                         .orElseThrow(() ->
                                 new RuntimeException(
-                                        "Hospital not found"));
+                                        "Hospital not found"
+                                )
+                        );
 
-        existingHospital.setName(hospital.getName());
-        existingHospital.setLocation(hospital.getLocation());
-        existingHospital.setAddress(hospital.getAddress());
-        existingHospital.setPhone(hospital.getPhone());
+        existingHospital.setName(
+                hospital.getName()
+        );
+
+        existingHospital.setLocation(
+                hospital.getLocation()
+        );
+
+        existingHospital.setAddress(
+                hospital.getAddress()
+        );
+
+        existingHospital.setPhone(
+                hospital.getPhone()
+        );
 
         return hospitalRepository.save(existingHospital);
     }
+
+    // =========================================================
+    // SOFT DELETE
+    // =========================================================
 
     public void deleteHospital(Long id) {
 
@@ -91,9 +118,32 @@ public class HospitalService {
                 hospitalRepository.findById(id)
                         .orElseThrow(() ->
                                 new RuntimeException(
-                                        "Hospital not found"));
+                                        "Hospital not found"
+                                )
+                        );
 
-        hospitalRepository.delete(hospital);
+        hospital.setActive(false);
+
+        hospitalRepository.save(hospital);
+    }
+
+    // =========================================================
+    // RESTORE
+    // =========================================================
+
+    public void restoreHospital(Long id) {
+
+        Hospital hospital =
+                hospitalRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Hospital not found"
+                                )
+                        );
+
+        hospital.setActive(true);
+
+        hospitalRepository.save(hospital);
     }
 
     // =========================================================

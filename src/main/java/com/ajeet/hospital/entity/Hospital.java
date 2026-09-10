@@ -26,4 +26,7 @@ public class Hospital {
     private String address;
 
     private String phone;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
 }
