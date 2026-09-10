@@ -45,7 +45,6 @@ public class PatientService {
         return convertToResponse(patient);
     }
 
-
     // =========================================================
     // PATIENT - UPDATE MY PROFILE
     // =========================================================
@@ -107,7 +106,7 @@ public class PatientService {
 
     public List<PatientResponse> getAllPatients() {
 
-        return patientRepository.findAll()
+        return patientRepository.findByActiveTrue()
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -173,16 +172,30 @@ public class PatientService {
 
     public void deletePatient(Long id) {
 
-        if (!patientRepository.existsById(id)) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Patient with id " + id + " not found"
+                        )
+                );
 
-            throw new PatientNotFoundException(
-                    "Patient with id "
-                            + id
-                            + " not found"
-            );
-        }
+        patient.setActive(false);
 
-        patientRepository.deleteById(id);
+        patientRepository.save(patient);
+    }
+
+    public void restorePatient(Long id) {
+
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Patient with id " + id + " not found"
+                        )
+                );
+
+        patient.setActive(true);
+
+        patientRepository.save(patient);
     }
 
 

@@ -30,6 +30,8 @@ public class Patient {
 
     private String address;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
 
     // ============================================
     // LINK PATIENT WITH USER
@@ -39,4 +41,6 @@ public class Patient {
     @JoinColumn(name = "user_id", unique = true)
     @JsonIgnore
     private User user;
+
+
 }

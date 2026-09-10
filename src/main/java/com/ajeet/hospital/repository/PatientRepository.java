@@ -13,4 +13,10 @@ public interface PatientRepository
     Optional<Patient> findByUserUsername(String username);
 
     List<Patient> findByNameContainingIgnoreCase(String name);
+
+    List<Patient> findByActiveTrue();
+
+    List<Patient> findByActiveFalse();
+
+    Optional<Patient> findByIdAndActiveTrue(Long id);
 }
