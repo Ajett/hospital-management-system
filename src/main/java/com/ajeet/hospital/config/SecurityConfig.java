@@ -172,6 +172,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/error"
                         ).permitAll()
+                                // -----------------------------//
+                                // Public healthcare APIs
+                        // ------------------------------
+
+                                .requestMatchers(
+                                        "/api/public/**"
+                                ).permitAll()
 
 
                         // ------------------------------

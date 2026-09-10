@@ -731,7 +731,7 @@ class AppointmentControllerTest {
 
         response.setId(1L);
         response.setAppointmentDate(
-                LocalDate.of(2026, 9, 5)
+                LocalDate.of(2026, 9, 25)
         );
         response.setAppointmentTime(
                 LocalTime.of(11, 30)
@@ -758,7 +758,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-05",
+                                "appointmentDate": "2026-09-25",
                                 "appointmentTime": "11:30:00",
                                 "reason": "Updated checkup",
                                 "patientId": 1,
@@ -770,7 +770,7 @@ class AppointmentControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(
                         jsonPath("$.appointmentDate")
-                                .value("2026-09-05")
+                                .value("2026-09-25")
                 )
                 .andExpect(
                         jsonPath("$.appointmentTime")
@@ -821,7 +821,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-05",
+                                "appointmentDate": "2026-09-25",
                                 "appointmentTime": "11:30:00",
                                 "reason": "Updated checkup",
                                 "patientId": 1,
@@ -903,7 +903,7 @@ class AppointmentControllerTest {
 
         response.setId(1L);
         response.setAppointmentDate(
-                LocalDate.of(2026, 9, 1)
+                LocalDate.of(2026, 9, 25)
         );
         response.setAppointmentTime(
                 LocalTime.of(10, 30)
@@ -1550,7 +1550,7 @@ class AppointmentControllerTest {
 
         response.setId(1L);
         response.setAppointmentDate(
-                LocalDate.of(2026, 9, 5)
+                LocalDate.of(2026, 9, 25)
         );
         response.setAppointmentTime(
                 LocalTime.of(11, 30)
@@ -1577,7 +1577,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-05",
+                                "appointmentDate": "2026-09-25",
                                 "appointmentTime": "11:30:00",
                                 "reason": null,
                                 "patientId": 1,
@@ -1844,7 +1844,7 @@ class AppointmentControllerTest {
 
         response.setId(1L);
         response.setAppointmentDate(
-                LocalDate.of(2026, 9, 5)
+                LocalDate.of(2026, 9, 25)
         );
         response.setAppointmentTime(
                 LocalTime.of(11, 30)
@@ -1871,7 +1871,7 @@ class AppointmentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                             {
-                                "appointmentDate": "2026-09-05",
+                                "appointmentDate": "2026-09-25",
                                 "appointmentTime": "11:30:00",
                                 "patientId": 1,
                                 "doctorId": 2

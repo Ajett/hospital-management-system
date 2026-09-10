@@ -2,6 +2,7 @@ package com.ajeet.hospital.service;
 
 import com.ajeet.hospital.dto.DoctorRequest;
 import com.ajeet.hospital.dto.DoctorResponse;
+import com.ajeet.hospital.dto.PublicDoctorResponse;
 import com.ajeet.hospital.entity.Department;
 import com.ajeet.hospital.entity.Doctor;
 import com.ajeet.hospital.exception.DepartmentNotFoundException;
@@ -199,5 +200,74 @@ public class DoctorService {
                 );
 
         return doctors.map(this::convertToResponse);
+    }
+
+    // =========================================================
+    // PUBLIC DOCTOR APIs
+    // =========================================================
+
+    public List<PublicDoctorResponse> getPublicDoctors() {
+
+        return doctorRepository.findAll()
+                .stream()
+                .map(this::convertToPublicResponse)
+                .toList();
+    }
+
+
+    public PublicDoctorResponse getPublicDoctorById(Long id) {
+
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor with id " + id + " not found"
+                        )
+                );
+
+        return convertToPublicResponse(doctor);
+    }
+
+
+    public List<PublicDoctorResponse> searchPublicDoctors(
+            String query,
+            String specialization,
+            String location) {
+
+        return doctorRepository
+                .searchPublicDoctors(
+                        query,
+                        specialization,
+                        location
+                )
+                .stream()
+                .map(this::convertToPublicResponse)
+                .toList();
+    }
+
+
+    private PublicDoctorResponse convertToPublicResponse(
+            Doctor doctor) {
+
+        PublicDoctorResponse response =
+                new PublicDoctorResponse();
+
+        response.setId(doctor.getId());
+        response.setName(doctor.getName());
+        response.setSpecialization(
+                doctor.getSpecialization()
+        );
+
+        if (doctor.getDepartment() != null) {
+
+            response.setDepartmentName(
+                    doctor.getDepartment().getName()
+            );
+
+            response.setLocation(
+                    doctor.getDepartment().getLocation()
+            );
+        }
+
+        return response;
     }
 }
