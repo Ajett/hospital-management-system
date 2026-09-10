@@ -91,4 +91,14 @@ public interface DoctorRepository
             @Param("specialization") String specialization,
             @Param("location") String location
     );
+
+    @Query("""
+    SELECT d
+    FROM Doctor d
+    WHERE d.hospital.id = :hospitalId
+    ORDER BY d.name ASC
+    """)
+    List<Doctor> findPublicDoctorsByHospitalId(
+            @Param("hospitalId") Long hospitalId
+    );
 }

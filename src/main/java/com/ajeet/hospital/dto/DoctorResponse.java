@@ -13,4 +13,7 @@ public class DoctorResponse {
 
     private Long departmentId;
     private String departmentName;
+
+    private Long hospitalId;
+    private String hospitalName;
 }

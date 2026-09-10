@@ -5,10 +5,12 @@ import com.ajeet.hospital.dto.DoctorResponse;
 import com.ajeet.hospital.dto.PublicDoctorResponse;
 import com.ajeet.hospital.entity.Department;
 import com.ajeet.hospital.entity.Doctor;
+import com.ajeet.hospital.entity.Hospital;
 import com.ajeet.hospital.exception.DepartmentNotFoundException;
 import com.ajeet.hospital.exception.DoctorNotFoundException;
 import com.ajeet.hospital.repository.DepartmentRepository;
 import com.ajeet.hospital.repository.DoctorRepository;
+import com.ajeet.hospital.repository.HospitalRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +24,16 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
+    private final HospitalRepository hospitalRepository;
 
-    public DoctorService(DoctorRepository doctorRepository, DepartmentRepository departmentRepository) {
+    public DoctorService(
+            DoctorRepository doctorRepository,
+            DepartmentRepository departmentRepository,
+            HospitalRepository hospitalRepository) {
+
         this.doctorRepository = doctorRepository;
         this.departmentRepository = departmentRepository;
+        this.hospitalRepository = hospitalRepository;
     }
 
     public DoctorResponse createDoctor(DoctorRequest request) {
@@ -40,6 +48,16 @@ public class DoctorService {
                                 )
                         );
 
+        Hospital hospital =
+                hospitalRepository.findById(request.getHospitalId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Hospital with id: "
+                                                + request.getHospitalId()
+                                                + " not found."
+                                )
+                        );
+
         Doctor doctor = new Doctor();
 
         doctor.setName(request.getName());
@@ -48,6 +66,8 @@ public class DoctorService {
 
         department.addDoctor(doctor);
         doctor.setDepartment(department);
+
+        doctor.setHospital(hospital);
 
         Doctor savedDoctor = doctorRepository.save(doctor);
 
@@ -83,15 +103,25 @@ public class DoctorService {
                         )
                 );
 
-        Department department = departmentRepository
-                .findById(request.getDepartmentId())
-                .orElseThrow(() ->
-                        new DepartmentNotFoundException(
-                                "Department with id "
-                                        + request.getDepartmentId()
-                                        + " not found"
-                        )
-                );
+        Department department =
+                departmentRepository.findById(request.getDepartmentId())
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department with id "
+                                                + request.getDepartmentId()
+                                                + " not found"
+                                )
+                        );
+
+        Hospital hospital =
+                hospitalRepository.findById(request.getHospitalId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Hospital with id "
+                                                + request.getHospitalId()
+                                                + " not found"
+                                )
+                        );
 
         doctor.setName(request.getName());
         doctor.setSpecialization(request.getSpecialization());
@@ -99,6 +129,8 @@ public class DoctorService {
 
         department.addDoctor(doctor);
         doctor.setDepartment(department);
+
+        doctor.setHospital(hospital);
 
         Doctor savedDoctor = doctorRepository.save(doctor);
 
@@ -158,6 +190,17 @@ public class DoctorService {
 
             response.setDepartmentName(
                     doctor.getDepartment().getName()
+            );
+        }
+
+        if (doctor.getHospital() != null) {
+
+            response.setHospitalId(
+                    doctor.getHospital().getId()
+            );
+
+            response.setHospitalName(
+                    doctor.getHospital().getName()
             );
         }
 
@@ -268,6 +311,26 @@ public class DoctorService {
             );
         }
 
+        if (doctor.getHospital() != null) {
+            response.setHospitalId(
+                    doctor.getHospital().getId()
+            );
+
+            response.setHospitalName(
+                    doctor.getHospital().getName()
+            );
+        }
+
         return response;
+    }
+
+    public List<PublicDoctorResponse> getPublicDoctorsByHospitalId(
+            Long hospitalId) {
+
+        return doctorRepository
+                .findPublicDoctorsByHospitalId(hospitalId)
+                .stream()
+                .map(this::convertToPublicResponse)
+                .toList();
     }
 }

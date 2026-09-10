@@ -16,4 +16,8 @@ public class PublicDoctorResponse {
     private String departmentName;
 
     private String location;
+
+    private Long hospitalId;
+
+    private String hospitalName;
 }

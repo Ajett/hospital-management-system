@@ -23,4 +23,7 @@ public class DoctorRequest {
 
     @NotNull(message = "Department ID is required")
     private Long departmentId;
+
+    @NotNull(message = "Hospital ID is required")
+    private Long hospitalId;
 }

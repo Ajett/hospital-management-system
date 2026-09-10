@@ -207,7 +207,8 @@ class DoctorControllerTest {
                                 "name": "Dr. Ajeet",
                                 "specialization": "Cardiology",
                                 "phone": "9876543210",
-                                "departmentId": 10
+                                "departmentId": 10,
+                                "hospitalId": 1
                             }
                             """)
                 )
@@ -278,7 +279,8 @@ class DoctorControllerTest {
                                 "name": "Dr. Ajeet Kumar",
                                 "specialization": "Neurology",
                                 "phone": "9999999999",
-                                "departmentId": 20
+                                "departmentId": 20,
+                                "hospitalId": 1
                             }
                             """)
                 )
