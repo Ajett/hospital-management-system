@@ -93,6 +93,7 @@ public class AuthService {
         user.setRole(
                 Role.PATIENT
         );
+        user.setEnabled(true);
 
         user = userRepository.save(user);
 

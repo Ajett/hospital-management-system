@@ -35,4 +35,11 @@ public class User {
 
     @Column
     private String phone;
+
+    // =========================================================
+    // ACCOUNT STATUS
+    // =========================================================
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean enabled = true;
 }

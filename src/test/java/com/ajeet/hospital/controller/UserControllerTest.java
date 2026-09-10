@@ -1,8 +1,12 @@
 package com.ajeet.hospital.controller;
 
+import com.ajeet.hospital.repository.UserRepository;
+import com.ajeet.hospital.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -20,10 +24,13 @@ class UserControllerTest {
 
     private MockMvc mockMvc;
 
+    @Mock
+    private UserService userService;
+
     @BeforeEach
     void setUp() {
 
-        UserController controller = new UserController();
+        UserController controller = new UserController(userService);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
