@@ -24,6 +24,9 @@ public class Department {
 
     private String location;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
     @OneToMany(mappedBy = "department")
     @JsonIgnore
     private List<Doctor> doctors = new ArrayList<>();

@@ -11,36 +11,60 @@ import java.util.List;
 
 @Service
 public class DepartmentService {
+
     private final DepartmentRepository departmentRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(
+            DepartmentRepository departmentRepository) {
+
         this.departmentRepository = departmentRepository;
     }
 
+    // =========================================================
+    // CREATE
+    // =========================================================
 
-    public Department createDepartment(DepartmentRequest request) {
+    public Department createDepartment(
+            DepartmentRequest request) {
+
         Department department = new Department();
 
         department.setName(request.getName());
         department.setLocation(request.getLocation());
+        department.setActive(true);
 
         return departmentRepository.save(department);
     }
 
+    // =========================================================
+    // GET ALL ACTIVE DEPARTMENTS
+    // =========================================================
+
     public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+
+        return departmentRepository.findByActiveTrue();
     }
 
-    public DepartmentResponse getDepartmentWithDoctors(Long id) {
+    // =========================================================
+    // GET ACTIVE DEPARTMENT WITH DOCTORS
+    // =========================================================
 
-        Department department = departmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new DepartmentNotFoundException(
-                                "Department with id " + id + " not found"
-                        )
-                );
+    public DepartmentResponse getDepartmentWithDoctors(
+            Long id) {
 
-        DepartmentResponse response = new DepartmentResponse();
+        Department department =
+                departmentRepository
+                        .findByIdAndActiveTrue(id)
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
+
+        DepartmentResponse response =
+                new DepartmentResponse();
 
         response.setId(department.getId());
         response.setName(department.getName());
@@ -49,6 +73,7 @@ public class DepartmentService {
         List<DepartmentResponse.DoctorSummary> doctors =
                 department.getDoctors()
                         .stream()
+                        .filter(doctor -> doctor.isActive())
                         .map(doctor -> {
 
                             DepartmentResponse.DoctorSummary summary =
@@ -69,29 +94,77 @@ public class DepartmentService {
         return response;
     }
 
-    public Department updateDepartment(Long id, DepartmentRequest request) {
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
-        Department existingDepartment = departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentNotFoundException(
-                                "Department with id " + id + " not found"
-                        )
-                );
+    public Department updateDepartment(
+            Long id,
+            DepartmentRequest request) {
 
-        existingDepartment.setName(request.getName());
-        existingDepartment.setLocation(request.getLocation());
+        Department existingDepartment =
+                departmentRepository
+                        .findByIdAndActiveTrue(id)
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
 
-        return departmentRepository.save(existingDepartment);
+        existingDepartment.setName(
+                request.getName()
+        );
+
+        existingDepartment.setLocation(
+                request.getLocation()
+        );
+
+        return departmentRepository.save(
+                existingDepartment
+        );
     }
+
+    // =========================================================
+    // SOFT DELETE
+    // =========================================================
 
     public void deleteDepartment(Long id) {
 
-        if (!departmentRepository.existsById(id)) {
-            throw new DepartmentNotFoundException(
-                    "Department with id " + id + " not found"
-            );
-        }
+        Department department =
+                departmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
 
-        departmentRepository.deleteById(id);
+        department.setActive(false);
+
+        departmentRepository.save(department);
     }
 
+    // =========================================================
+    // RESTORE
+    // =========================================================
+
+    public void restoreDepartment(Long id) {
+
+        Department department =
+                departmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department with id "
+                                                + id
+                                                + " not found"
+                                )
+                        );
+
+        department.setActive(true);
+
+        departmentRepository.save(department);
+    }
 }
