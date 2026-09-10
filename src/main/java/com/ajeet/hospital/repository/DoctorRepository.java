@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DoctorRepository
         extends JpaRepository<Doctor, Long> {
@@ -61,31 +62,21 @@ public interface DoctorRepository
     // =========================================================
 
     @Query("""
-        SELECT d
-        FROM Doctor d
-        JOIN d.department dep
-        WHERE
-            (
-                :query IS NULL
-                OR :query = ''
-                OR LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%'))
-                OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :query, '%'))
-                OR LOWER(dep.name) LIKE LOWER(CONCAT('%', :query, '%'))
-            )
-        AND
-            (
-                :location IS NULL
-                OR :location = ''
-                OR LOWER(dep.location) LIKE LOWER(CONCAT('%', :location, '%'))
-            )
-        AND
-            (
-                :specialization IS NULL
-                OR :specialization = ''
-                OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :specialization, '%'))
-            )
-        ORDER BY d.name ASC
-        """)
+    SELECT d
+    FROM Doctor d
+    WHERE d.active = true
+    AND
+        (:query IS NULL OR :query = ''
+         OR LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%'))
+         OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :query, '%')))
+    AND
+        (:specialization IS NULL OR :specialization = ''
+         OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :specialization, '%')))
+    AND
+        (:location IS NULL OR :location = ''
+         OR LOWER(d.department.location) LIKE LOWER(CONCAT('%', :location, '%')))
+    ORDER BY d.name ASC
+    """)
     List<Doctor> searchPublicDoctors(
             @Param("query") String query,
             @Param("specialization") String specialization,
@@ -96,9 +87,15 @@ public interface DoctorRepository
     SELECT d
     FROM Doctor d
     WHERE d.hospital.id = :hospitalId
+      AND d.active = true
     ORDER BY d.name ASC
     """)
     List<Doctor> findPublicDoctorsByHospitalId(
             @Param("hospitalId") Long hospitalId
     );
+    List<Doctor> findByActiveTrue();
+
+    List<Doctor> findByActiveFalse();
+
+    Optional<Doctor> findByIdAndActiveTrue(Long id);
 }

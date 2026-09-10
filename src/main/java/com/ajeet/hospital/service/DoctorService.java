@@ -76,7 +76,7 @@ public class DoctorService {
 
     public List<DoctorResponse> getAllDoctors() {
 
-        return doctorRepository.findAll()
+        return doctorRepository.findByActiveTrue()
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -139,13 +139,30 @@ public class DoctorService {
 
     public void deleteDoctor(Long id) {
 
-        if (!doctorRepository.existsById(id)) {
-            throw new DoctorNotFoundException(
-                    "Doctor with id " + id + " not found"
-            );
-        }
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor with id " + id + " not found"
+                        )
+                );
 
-        doctorRepository.deleteById(id);
+        doctor.setActive(false);
+
+        doctorRepository.save(doctor);
+    }
+
+    public void restoreDoctor(Long id) {
+
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor with id " + id + " not found"
+                        )
+                );
+
+        doctor.setActive(true);
+
+        doctorRepository.save(doctor);
     }
 
 
@@ -251,7 +268,7 @@ public class DoctorService {
 
     public List<PublicDoctorResponse> getPublicDoctors() {
 
-        return doctorRepository.findAll()
+        return doctorRepository.findByActiveTrue()
                 .stream()
                 .map(this::convertToPublicResponse)
                 .toList();
@@ -260,7 +277,7 @@ public class DoctorService {
 
     public PublicDoctorResponse getPublicDoctorById(Long id) {
 
-        Doctor doctor = doctorRepository.findById(id)
+        Doctor doctor = doctorRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() ->
                         new DoctorNotFoundException(
                                 "Doctor with id " + id + " not found"
