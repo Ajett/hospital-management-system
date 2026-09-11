@@ -4,6 +4,7 @@ import com.ajeet.hospital.dto.MedicalRecordRequest;
 import com.ajeet.hospital.dto.MedicalRecordResponse;
 import com.ajeet.hospital.service.MedicalRecordService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -70,6 +71,21 @@ public class MedicalRecordController {
         medicalRecordService.deleteMedicalRecord(id);
 
         return "Medical record deleted successfully";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<MedicalRecordResponse> getAllMedicalRecordsForAdmin() {
+        return medicalRecordService.getAllMedicalRecordsForAdmin();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/restore")
+    public String restoreMedicalRecord(@PathVariable Long id) {
+
+        medicalRecordService.restoreMedicalRecord(id);
+
+        return "Medical record restored successfully";
     }
 
 }

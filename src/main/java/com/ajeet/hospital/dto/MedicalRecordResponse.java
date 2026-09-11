@@ -25,4 +25,5 @@ public class MedicalRecordResponse {
     private Long doctorId;
     private String doctorName;
     private String specialization;
+    private boolean active;
 }

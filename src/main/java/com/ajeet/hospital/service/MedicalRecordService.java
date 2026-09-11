@@ -76,7 +76,7 @@ public class MedicalRecordService {
     // GET ALL
     public List<MedicalRecordResponse> getAllMedicalRecords() {
 
-        return medicalRecordRepository.findAll()
+        return medicalRecordRepository.findByActiveTrue()
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -130,6 +130,8 @@ public class MedicalRecordService {
         response.setSpecialization(
                 record.getDoctor().getSpecialization()
         );
+
+        response.setActive(record.isActive());
 
         return response;
     }
@@ -217,18 +219,37 @@ public class MedicalRecordService {
     // DELETE
     public void deleteMedicalRecord(Long id) {
 
-        MedicalRecord record =
-                medicalRecordRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new MedicalRecordNotFoundException(
-                                        "Medical record with id "
-                                                + id
-                                                + " not found"
-                                )
-                        );
+        MedicalRecord record = medicalRecordRepository.findById(id)
+                .orElseThrow(() ->
+                        new MedicalRecordNotFoundException(
+                                "Medical record with id " + id + " not found"
+                        )
+                );
 
-        medicalRecordRepository.delete(record);
+        record.setActive(false);
+
+        medicalRecordRepository.save(record);
+    }
+
+    public void restoreMedicalRecord(Long id) {
+
+        MedicalRecord record = medicalRecordRepository.findById(id)
+                .orElseThrow(() ->
+                        new MedicalRecordNotFoundException(
+                                "Medical record with id " + id + " not found"
+                        )
+                );
+
+        record.setActive(true);
+
+        medicalRecordRepository.save(record);
+    }
+
+    public List<MedicalRecordResponse> getAllMedicalRecordsForAdmin() {
+        return medicalRecordRepository.findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
 }

@@ -28,6 +28,9 @@ public class MedicalRecord {
     @Column(length = 2000)
     private String prescription;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;

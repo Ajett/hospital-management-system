@@ -5,6 +5,7 @@ import com.ajeet.hospital.dto.BillResponse;
 import com.ajeet.hospital.dto.PaymentStatusRequest;
 import com.ajeet.hospital.service.BillService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,6 +72,21 @@ public class BillController {
         billService.deleteBill(id);
 
         return "Bill deleted successfully";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<BillResponse> getAllBillsForAdmin() {
+        return billService.getAllBillsForAdmin();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/restore")
+    public String restoreBill(@PathVariable Long id) {
+
+        billService.restoreBill(id);
+
+        return "Bill restored successfully";
     }
 
 

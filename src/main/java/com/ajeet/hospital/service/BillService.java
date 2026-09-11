@@ -76,7 +76,7 @@ public class BillService {
     // GET ALL BILLS
     public List<BillResponse> getAllBills() {
 
-        return billRepository.findAll()
+        return billRepository.findByActiveTrue()
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -183,6 +183,8 @@ public class BillService {
                 appointment.getDoctor().getName()
         );
 
+        response.setActive(bill.isActive());
+
         return response;
     }
 
@@ -243,17 +245,36 @@ public class BillService {
     @Transactional
     public void deleteBill(Long id) {
 
-        Bill bill = billRepository
-                .findById(id)
+        Bill bill = billRepository.findById(id)
                 .orElseThrow(() ->
                         new BillNotFoundException(
-                                "Bill with id "
-                                        + id
-                                        + " not found"
+                                "Bill with id " + id + " not found"
                         )
                 );
 
-        billRepository.delete(bill);
+        bill.setActive(false);
+
+        billRepository.save(bill);
     }
 
+    public List<BillResponse> getAllBillsForAdmin() {
+        return billRepository.findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public void restoreBill(Long id) {
+
+        Bill bill = billRepository.findById(id)
+                .orElseThrow(() ->
+                        new BillNotFoundException(
+                                "Bill with id " + id + " not found"
+                        )
+                );
+
+        bill.setActive(true);
+
+        billRepository.save(bill);
+    }
 }

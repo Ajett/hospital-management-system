@@ -24,6 +24,9 @@ public class Bill {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
     @OneToOne
     @JoinColumn(name = "appointment_id", nullable = false, unique = true)
     private Appointment appointment;

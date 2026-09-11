@@ -26,4 +26,6 @@ public class BillResponse {
 
     private Long doctorId;
     private String doctorName;
+
+    private boolean active;
 }
