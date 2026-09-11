@@ -163,4 +163,32 @@ public class PatientController {
 
         return patientService.searchPatients(name);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/page/all")
+    public Page<PatientResponse> getAllPatientsPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        if (page < 0) {
+            throw new IllegalArgumentException(
+                    "Page number cannot be negative"
+            );
+        }
+
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "Page size must be between 1 and 100"
+            );
+        }
+
+        return patientService.getAllPatientsPage(
+                page,
+                size,
+                sortBy,
+                direction
+        );
+    }
 }

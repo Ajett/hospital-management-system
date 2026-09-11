@@ -8,6 +8,7 @@ import com.ajeet.hospital.repository.PatientRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -292,5 +293,26 @@ public class PatientService {
         );
 
         return response;
+    }
+
+    public Page<PatientResponse> getAllPatientsPage(
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
+
+        Sort sort;
+
+        if (direction.equalsIgnoreCase("desc")) {
+            sort = Sort.by(sortBy).descending();
+        } else {
+            sort = Sort.by(sortBy).ascending();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return patientRepository
+                .findAll(pageable)
+                .map(this::convertToResponse);
     }
 }
