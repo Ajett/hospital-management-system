@@ -98,4 +98,6 @@ public interface DoctorRepository
     List<Doctor> findByActiveFalse();
 
     Optional<Doctor> findByIdAndActiveTrue(Long id);
+
+    List<Doctor> findAll();
 }

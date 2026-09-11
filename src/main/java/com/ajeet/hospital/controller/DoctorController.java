@@ -124,4 +124,10 @@ public class DoctorController {
                 direction
         );
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<DoctorResponse> getAllDoctorsForAdmin() {
+        return doctorService.getAllDoctorsForAdmin();
+    }
 }

@@ -16,4 +16,6 @@ public class DoctorResponse {
 
     private Long hospitalId;
     private String hospitalName;
+
+    private boolean active;
 }

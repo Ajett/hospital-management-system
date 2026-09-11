@@ -221,6 +221,8 @@ public class DoctorService {
             );
         }
 
+        response.setActive(doctor.isActive());
+
         return response;
     }
 
@@ -338,6 +340,7 @@ public class DoctorService {
             );
         }
 
+
         return response;
     }
 
@@ -348,6 +351,15 @@ public class DoctorService {
                 .findPublicDoctorsByHospitalId(hospitalId)
                 .stream()
                 .map(this::convertToPublicResponse)
+                .toList();
+    }
+
+    public List<DoctorResponse> getAllDoctorsForAdmin() {
+
+        return doctorRepository
+                .findAll()
+                .stream()
+                .map(this::convertToResponse)
                 .toList();
     }
 }
