@@ -56,7 +56,8 @@ public class HospitalService {
 
     public List<Hospital> getAllHospitals() {
 
-        return hospitalRepository.findByActiveTrue();
+        // Admin must see both active and inactive hospitals.
+        return hospitalRepository.findAll();
     }
 
     public Hospital getHospitalById(Long id) {
