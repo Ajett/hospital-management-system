@@ -100,4 +100,10 @@ public class DepartmentController {
 
         return "Department restored successfully";
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<DepartmentResponse> getAllDepartmentsForAdmin() {
+        return departmentService.getAllDepartmentsForAdmin();
+    }
 }

@@ -38,11 +38,26 @@ public class DepartmentService {
 
     // =========================================================
     // GET ALL ACTIVE DEPARTMENTS
+    // Used by normal/public department listing
     // =========================================================
 
     public List<Department> getAllDepartments() {
 
         return departmentRepository.findByActiveTrue();
+    }
+
+    // =========================================================
+    // GET ALL DEPARTMENTS FOR ADMIN
+    // Includes ACTIVE + INACTIVE
+    // =========================================================
+
+    public List<DepartmentResponse> getAllDepartmentsForAdmin() {
+
+        return departmentRepository
+                .findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
     // =========================================================
@@ -69,6 +84,7 @@ public class DepartmentService {
         response.setId(department.getId());
         response.setName(department.getName());
         response.setLocation(department.getLocation());
+        response.setActive(department.isActive());
 
         List<DepartmentResponse.DoctorSummary> doctors =
                 department.getDoctors()
@@ -127,7 +143,7 @@ public class DepartmentService {
     }
 
     // =========================================================
-    // SOFT DELETE
+    // SOFT DELETE / DEACTIVATE
     // =========================================================
 
     public void deleteDepartment(Long id) {
@@ -166,5 +182,23 @@ public class DepartmentService {
         department.setActive(true);
 
         departmentRepository.save(department);
+    }
+
+    // =========================================================
+    // CONVERT ENTITY -> RESPONSE
+    // =========================================================
+
+    private DepartmentResponse convertToResponse(
+            Department department) {
+
+        DepartmentResponse response =
+                new DepartmentResponse();
+
+        response.setId(department.getId());
+        response.setName(department.getName());
+        response.setLocation(department.getLocation());
+        response.setActive(department.isActive());
+
+        return response;
     }
 }

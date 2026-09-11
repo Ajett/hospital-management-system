@@ -8,9 +8,11 @@ import java.util.List;
 @Getter
 @Setter
 public class DepartmentResponse {
+
     private Long id;
     private String name;
     private String location;
+    private boolean active;
 
     private List<DoctorSummary> doctors;
 
