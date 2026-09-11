@@ -100,6 +100,8 @@ public class AppointmentService {
                 AppointmentStatus.SCHEDULED
         );
 
+        appointment.setActive(true);
+
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
 
@@ -195,7 +197,8 @@ public class AppointmentService {
 
     public List<AppointmentResponse> getAllAppointments() {
 
-        return appointmentRepository.findAll()
+        return appointmentRepository
+                .findByActiveTrue()
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -207,6 +210,7 @@ public class AppointmentService {
         return appointmentRepository
                 .findByPatientUserUsername(username)
                 .stream()
+                .filter(Appointment::isActive)
                 .map(this::convertToResponse)
                 .toList();
     }
@@ -260,18 +264,17 @@ public class AppointmentService {
     @Transactional
     public void deleteAppointment(Long id) {
 
-        Appointment appointment = appointmentRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new AppointmentNotFoundException(
-                                "Appointment with id " + id + " not found"));
+        Appointment appointment =
+                appointmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new AppointmentNotFoundException(
+                                        "Appointment with id " + id + " not found"
+                                )
+                        );
 
+        appointment.setActive(false);
 
-        // First delete Bill
-        billRepository.deleteByAppointmentId(id);
-
-        // Then delete Appointment
-        appointmentRepository.delete(appointment);
+        appointmentRepository.save(appointment);
     }
 
 
@@ -372,7 +375,35 @@ public class AppointmentService {
                 appointment.getDoctor().getSpecialization()
         );
 
+        response.setActive(
+                appointment.isActive()
+        );
+
         return response;
+    }
+
+    public void restoreAppointment(Long id) {
+
+        Appointment appointment =
+                appointmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new AppointmentNotFoundException(
+                                        "Appointment with id " + id + " not found"
+                                )
+                        );
+
+        appointment.setActive(true);
+
+        appointmentRepository.save(appointment);
+    }
+
+    public List<AppointmentResponse> getAllAppointmentsForAdmin() {
+
+        return appointmentRepository
+                .findAll()
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
 

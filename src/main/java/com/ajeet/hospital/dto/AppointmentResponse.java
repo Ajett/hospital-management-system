@@ -26,4 +26,6 @@ public class AppointmentResponse {
     private Long doctorId;
     private String doctorName;
     private String specialization;
+
+    private boolean active;
 }

@@ -17,4 +17,6 @@ public interface AppointmentRepository
             LocalDate appointmentDate,
             LocalTime appointmentTime
     );
+
+    List<Appointment> findByActiveTrue();
 }

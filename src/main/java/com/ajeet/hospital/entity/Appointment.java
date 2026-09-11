@@ -28,6 +28,9 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
@@ -35,4 +38,6 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
+
+
 }

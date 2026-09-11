@@ -75,6 +75,24 @@ public class AppointmentController {
         return appointmentService.getAllAppointments();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<AppointmentResponse> getAllAppointmentsForAdmin() {
+
+        return appointmentService
+                .getAllAppointmentsForAdmin();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/restore")
+    public String restoreAppointment(
+            @PathVariable Long id) {
+
+        appointmentService.restoreAppointment(id);
+
+        return "Appointment restored successfully";
+    }
+
     // =========================================================
 // GET MY APPOINTMENTS
 // =========================================================
