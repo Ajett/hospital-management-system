@@ -287,6 +287,10 @@ public class PatientService {
                 patient.getAddress()
         );
 
+        response.setActive(
+                patient.isActive()
+        );
+
         return response;
     }
 }

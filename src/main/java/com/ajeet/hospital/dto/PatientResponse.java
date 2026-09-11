@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class PatientResponse {
+
     private Long id;
 
     private String name;
@@ -21,4 +22,6 @@ public class PatientResponse {
     private String email;
 
     private String address;
+
+    private boolean active;
 }
