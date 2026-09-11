@@ -61,6 +61,15 @@ public class DoctorController {
         return "Doctor deleted successfully";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/restore")
+    public String restoreDoctor(@PathVariable Long id) {
+
+        doctorService.restoreDoctor(id);
+
+        return "Doctor restored successfully";
+    }
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/search/advanced")
